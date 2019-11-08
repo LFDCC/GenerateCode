@@ -1,0 +1,15 @@
+﻿using @Model.ModelNamespace;
+using @Model.IServiceNamespace;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace @Model.Namespace
+{
+    public interface I@(Model.Name)Service : IBaseService<@Model.Name>
+    {
+
+    }
+}

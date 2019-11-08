@@ -1,0 +1,23 @@
+﻿using @Model.ModelNamespace;
+using @Model.IRepositoryNamespace;
+using @Model.ServiceNamespace;
+using @Model.IServiceNamespace;
+using SqlSugar;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace @Model.Namespace
+{
+    public class @(Model.Name)Service : BaseService<@Model.Name>,I@(Model.Name)Service
+    {
+        private I@(Model.Name)Repository _@(Model.Name)Repository;
+
+		public @(Model.Name)Service(I@(Model.Name)Repository @(Model.Name)Repository):base(@(Model.Name)Repository){
+			_@(Model.Name)Repository=@(Model.Name)Repository;
+		}
+    }
+
+}
