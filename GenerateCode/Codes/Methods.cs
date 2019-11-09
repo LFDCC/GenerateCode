@@ -6,7 +6,7 @@ using System.Xml.Linq;
 using RazorEngine;
 using RazorEngine.Templating;
 
-namespace SugarCodeGeneration.Codes
+namespace Generation.Codes
 {
     /// <summary>
     /// 生成所需要的代码
@@ -66,6 +66,37 @@ namespace SugarCodeGeneration.Codes
             xe = XDocument.Parse(newXml);
             xe.Save(xmlPath);
         }
+        /// <summary>
+        /// 创建模块
+        /// </summary>
+        public static void CreateModules(ModuleParameter moduleParameter)
+        {
+            string template = System.IO.File.ReadAllText($"{Methods.GetCurrentProjectPath}\\Template\\{moduleParameter.TempName}.txt"); //从文件中读出模板内容
+            string templateKey = Guid.NewGuid().ToString("N"); //取个名字
+            if (moduleParameter.Tables?.Count > 0)
+            {
+                foreach (string item in moduleParameter.Tables)
+                {
+                    moduleParameter.Parameter.TableName = item;
+                    string result = Engine.Razor.RunCompile(template, templateKey, moduleParameter.Parameter.GetType(), moduleParameter.Parameter);
+                    string savePath = $"{moduleParameter.SavePath}\\{moduleParameter.FilePrefix}{item}{moduleParameter.FileSuffix}.cs";
+                    if (FileHelper.IsExistFile(savePath) == false)
+                    {
+                        FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
+                    }
+                }
+            }
+            else
+            {
+                string result = Engine.Razor.RunCompile(template, templateKey, moduleParameter.Parameter.GetType(), moduleParameter.Parameter);
+                string savePath = $"{moduleParameter.SavePath}\\{moduleParameter.FilePrefix}{moduleParameter.FileName}{moduleParameter.FileSuffix}.cs";
+                if (FileHelper.IsExistFile(savePath) == false)
+                {
+                    FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
+                }
+            }
+
+        }
 
         /// <summary>
         /// 生成IBaseService
@@ -73,15 +104,11 @@ namespace SugarCodeGeneration.Codes
         /// <param name="templatePath"></param>
         /// <param name="savePath"></param>
         /// <param name="nameSpace"></param>
-        public static void CreateIBaseService(string templatePath, string savePath, string nameSpace)
+        public static void CreateIBaseService(string templatePath, string savePath, TempParameter parameter)
         {
             string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
             string templateKey = "ibs"; //取个名字
-            Parameter model = new Parameter()
-            {
-                Namespace = nameSpace
-            };
-            string result = Engine.Razor.RunCompile(template, templateKey, model.GetType(), model);
+            string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
             if (FileHelper.IsExistFile(savePath) == false)
             {
                 FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
@@ -97,20 +124,14 @@ namespace SugarCodeGeneration.Codes
         /// <param name="nameSpace"></param>
         /// <param name="modelNamespace"></param>
         /// <param name="iBaseRepositoryNamespace"></param>
-        public static void CreateIService(string templatePath, string savePath, List<string> tables, string nameSpace, string modelNamespace, string iBaseServiceNamespace)
+        public static void CreateIService(string templatePath, string savePath, List<string> tables, TempParameter parameter)
         {
             string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
             string templateKey = "is"; //取个名字
             foreach (string item in tables)
             {
-                Parameter model = new Parameter()
-                {
-                    Name = item,
-                    Namespace = nameSpace,
-                    ModelNamespace = modelNamespace,
-                    IServiceNamespace = iBaseServiceNamespace
-                };
-                string result = Engine.Razor.RunCompile(template, templateKey, model.GetType(), model);
+                parameter.TableName = item;
+                string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
                 string cp = savePath + "\\I" + item + "Service.cs";
                 if (FileHelper.IsExistFile(cp) == false)
                 {
@@ -125,28 +146,22 @@ namespace SugarCodeGeneration.Codes
         /// <param name="templatePath"></param>
         /// <param name="savePath"></param>
         /// <param name="model"></param>
-        public static void CreateDbContext(string templatePath, string savePath, DbContextParameter model)
+        public static void CreateDbContext(string templatePath, string savePath, TempParameter parameter)
         {
             string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
             string templateKey = "dbcontext"; //取个名字
-            string result = Engine.Razor.RunCompile(template, templateKey, model.GetType(), model);
+            string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
             if (FileHelper.IsExistFile(savePath) == false)
             {
                 FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
             }
         }
 
-        public static void CreateBaseService(string templatePath, string savePath, string nameSpace, string iServiceNamespace, string iRepositoryNamespace)
+        public static void CreateBaseService(string templatePath, string savePath, TempParameter parameter)
         {
             string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
-            string templateKey = "bs"; //取个名字
-            Parameter model = new Parameter()
-            {
-                Namespace = nameSpace,
-                IServiceNamespace = iServiceNamespace + ".Base",
-                IRepositoryNamespace = iRepositoryNamespace + ".Base"
-            };
-            string result = Engine.Razor.RunCompile(template, templateKey, model.GetType(), model);
+            string templateKey = "bs"; //取个名字           
+            string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
 
             if (FileHelper.IsExistFile(savePath) == false)
             {
@@ -154,22 +169,14 @@ namespace SugarCodeGeneration.Codes
             }
         }
 
-        public static void CreateService(string templatePath, string savePath, List<string> tables, string nameSpace, string modelNamespace, string iServiceNamespace, string baseServiceNamespace, string iRepositoryNamespace)
+        public static void CreateService(string templatePath, string savePath, List<string> tables, TempParameter parameter)
         {
             string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
             string templateKey = "sss"; //取个名字
             foreach (string item in tables)
             {
-                Parameter model = new Parameter()
-                {
-                    Name = item,
-                    Namespace = nameSpace,
-                    ModelNamespace = modelNamespace,
-                    IServiceNamespace = iServiceNamespace,
-                    ServiceNamespace = baseServiceNamespace,
-                    IRepositoryNamespace = iRepositoryNamespace
-                };
-                string result = Engine.Razor.RunCompile(template, templateKey, model.GetType(), model);
+                parameter.TableName = item;
+                string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
                 string cp = savePath + "\\" + item + "Service.cs";
                 if (FileHelper.IsExistFile(cp) == false)
                 {
@@ -178,21 +185,14 @@ namespace SugarCodeGeneration.Codes
             }
         }
 
-        public static void CreateRepository(string templatePath, string savePath, List<string> tables, string nameSpace, string modelNamespace, string iRepositoryNamespace, string baseRepositoryNamespace)
+        public static void CreateRepository(string templatePath, string savePath, List<string> tables, TempParameter parameter)
         {
             string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
             string templateKey = "cr"; //取个名字
             foreach (string item in tables)
             {
-                Parameter model = new Parameter()
-                {
-                    Name = item,
-                    Namespace = nameSpace,
-                    IRepositoryNamespace = iRepositoryNamespace,
-                    ModelNamespace = modelNamespace,
-                    RepositoryNamespace = baseRepositoryNamespace
-                };
-                string result = Engine.Razor.RunCompile(template, templateKey, model.GetType(), model);
+                parameter.TableName = item;
+                string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
                 string cp = savePath + "\\" + item + "Repository.cs";
                 if (FileHelper.IsExistFile(cp) == false)
                 {
@@ -201,17 +201,11 @@ namespace SugarCodeGeneration.Codes
             }
         }
 
-        public static void CreateBaseRepository(string templatePath, string savePath, string nameSpace, string modelNamespace, string iRepositoryNamespace)
+        public static void CreateBaseRepository(string templatePath, string savePath, TempParameter parameter)
         {
             string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
             string templateKey = "br"; //取个名字
-            Parameter model = new Parameter()
-            {
-                ModelNamespace = modelNamespace,
-                IRepositoryNamespace = iRepositoryNamespace + ".Base",
-                Namespace = nameSpace
-            };
-            string result = Engine.Razor.RunCompile(template, templateKey, model.GetType(), model);
+            string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
 
             if (FileHelper.IsExistFile(savePath) == false)
             {
@@ -225,15 +219,11 @@ namespace SugarCodeGeneration.Codes
         /// <param name="templatePath"></param>
         /// <param name="savePath"></param>
         /// <param name="nameSpace"></param>
-        public static void CreateIBaseRepository(string templatePath, string savePath, string nameSpace)
+        public static void CreateIBaseRepository(string templatePath, string savePath, TempParameter parameter)
         {
             string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
             string templateKey = "ibr"; //取个名字
-            Parameter model = new Parameter()
-            {
-                Namespace = nameSpace
-            };
-            string result = Engine.Razor.RunCompile(template, templateKey, model.GetType(), model);
+            string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
             if (FileHelper.IsExistFile(savePath) == false)
             {
                 FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
@@ -249,20 +239,14 @@ namespace SugarCodeGeneration.Codes
         /// <param name="nameSpace"></param>
         /// <param name="modelNamespace"></param>
         /// <param name="iBaseRepositoryNamespace"></param>
-        public static void CreateIRepository(string templatePath, string savePath, List<string> tables, string nameSpace, string modelNamespace, string iBaseRepositoryNamespace)
+        public static void CreateIRepository(string templatePath, string savePath, List<string> tables, TempParameter parameter)
         {
             string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
             string templateKey = "ir"; //取个名字
             foreach (string item in tables)
             {
-                Parameter model = new Parameter()
-                {
-                    Name = item,
-                    Namespace = nameSpace,
-                    ModelNamespace = modelNamespace,
-                    IRepositoryNamespace = iBaseRepositoryNamespace
-                };
-                string result = Engine.Razor.RunCompile(template, templateKey, model.GetType(), model);
+                parameter.TableName = item;
+                string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
                 string cp = savePath + "\\I" + item + "Repository.cs";
                 if (FileHelper.IsExistFile(cp) == false)
                 {

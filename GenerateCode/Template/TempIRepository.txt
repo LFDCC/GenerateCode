@@ -1,14 +1,14 @@
 ﻿using @Model.ModelNamespace;
-using @Model.IRepositoryNamespace;
+using @Model.IBaseRepositoryNamespace;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace @Model.Namespace
+namespace @Model.IRepositoryNamespace
 {
-    public interface I@(Model.Name)Repository : IBaseRepository<@Model.Name>
+    public interface I@(Model.TableName)Repository : IBaseRepository<@Model.TableName>
     {
 
     }

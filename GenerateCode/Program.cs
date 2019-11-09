@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SqlSugar;
-using SugarCodeGeneration.Codes;
+using Generation.Codes;
 
-namespace SugarCodeGeneration
+namespace Generation
 {
     /// <summary>
     /// F5直接运行生成项目
@@ -14,13 +14,13 @@ namespace SugarCodeGeneration
     internal class Program
     {
         //如果你不需要自定义，直接配好数据库连接，F5运行项目
-        private const SqlSugar.DbType dbType = SqlSugar.DbType.SqlServer;
+        private const SqlSugar.DbType dbType = SqlSugar.DbType.Oracle;
 
         /// <summary>
         /// 连接字符串
         /// </summary>
-        private const string connectionString = @"server=.\sqlexpress;uid=sa;pwd=ok;database=lyq";
-
+        //private const string connectionString = @"server=.\sqlexpress;uid=sa;pwd=ok;database=nj";       //sqlserver
+        private const string connectionString = @"Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=testdb)));User ID=scott;Password=ok";//oracle
         /// <summary>
         ///解决方案名称
         /// </summary>
@@ -37,17 +37,23 @@ namespace SugarCodeGeneration
         private const string IRepositoryNamespace = SolutionName + ".IRepository";
         private const string IRepositoryProjectName = SolutionName + ".IRepository";
 
-        private const string IBaseRepositoryNamespace = IRepositoryNamespace + ".Base";
-        private const string BaseRepositoryNamespace = RepositoryNamespace + ".Base";
-
         private static SqlSugarClient db;
 
+        static TempParameter param = new TempParameter
+        {
+            IRepositoryNamespace = IRepositoryNamespace,
+            IServiceNamespace = IServiceNamespace,
+            ModelNamespace = ModelNamespace,
+            RepositoryNamespace = RepositoryNamespace,
+            ServiceNamespace = ServiceNamespace
+        };
         /// <summary>
         /// 执行生成
         /// </summary>
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
+
             /***创建解决方案***/
             Methods.CreateSln(SolutionName);
 
@@ -106,11 +112,15 @@ namespace SugarCodeGeneration
         private static void GenerationService()
         {
             Print("开始创建Service");
-            string savePath = Methods.GetSlnPath + "\\" + ServiceProjectName;//保存目录
-            List<string> tables = db.DbMaintenance.GetTableInfoList().Select(it => it.Name).ToList();
-            string templatePath = Methods.GetCurrentProjectPath + "\\Template\\TempService.txt";//模版地址
-
-            Methods.CreateService(templatePath, savePath, tables, ServiceNamespace, ModelNamespace, IServiceNamespace, ServiceNamespace + ".Base", IRepositoryNamespace);
+            var moduleParameter = new ModuleParameter
+            {
+                FileSuffix = "Service",
+                Parameter = param,
+                SavePath = Methods.GetSlnPath + "\\" + ServiceProjectName,
+                Tables = db.DbMaintenance.GetTableInfoList().Select(it => it.Name).ToList(),
+                TempName = "TempService"
+            };
+            Methods.CreateModules(moduleParameter);
             AddTask(ServiceProjectName);
             Print("Service创建成功");
         }
@@ -121,10 +131,15 @@ namespace SugarCodeGeneration
         private static void GenerationBaseService()
         {
             Print("开始创建BaseService");
-            string templatePath = Methods.GetCurrentProjectPath + "\\Template\\TempBaseService.txt";//模版地址
-            string savePath = Methods.GetSlnPath + "\\" + SolutionName + ".Service" + "\\Base\\BaseService.cs";//具体文件名
+            var moduleParameter = new ModuleParameter
+            {
+                FileName = "BaseService",
+                Parameter = param,
+                SavePath = Methods.GetSlnPath + "\\" + ServiceProjectName + "\\Base",
+                TempName = "TempBaseService"
+            };
+            Methods.CreateModules(moduleParameter);
 
-            Methods.CreateBaseService(templatePath, savePath, ServiceNamespace + ".Base", IServiceNamespace, IRepositoryNamespace);
             AddTask(ServiceProjectName);
             Print("BaseService创建成功");
         }
@@ -135,11 +150,16 @@ namespace SugarCodeGeneration
         private static void GenerationIService()
         {
             Print("开始创建IService");
-            string savePath = Methods.GetSlnPath + "\\" + IServiceProjectName;//保存目录
-            List<string> tables = db.DbMaintenance.GetTableInfoList().Select(it => it.Name).ToList();
-            string templatePath = Methods.GetCurrentProjectPath + "\\Template\\TempIService.txt";//模版地址
-
-            Methods.CreateIService(templatePath, savePath, tables, IServiceNamespace, ModelNamespace, IServiceNamespace + ".Base");
+            var moduleParameter = new ModuleParameter
+            {
+                FilePrefix = "I",
+                FileSuffix = "Service",
+                Parameter = param,
+                SavePath = Methods.GetSlnPath + "\\" + IServiceProjectName,
+                Tables = db.DbMaintenance.GetTableInfoList().Select(it => it.Name).ToList(),
+                TempName = "TempIService"
+            };
+            Methods.CreateModules(moduleParameter);
             AddTask(IServiceProjectName);
             Print("IService创建成功");
         }
@@ -150,10 +170,14 @@ namespace SugarCodeGeneration
         private static void GenerationIBaseService()
         {
             Print("开始创建IBaseService");
-            string templatePath = Methods.GetCurrentProjectPath + "\\Template\\TempIBaseService.txt";//模版地址
-            string savePath = Methods.GetSlnPath + "\\" + SolutionName + ".IService" + "\\Base\\IBaseService.cs";//具体文件名
-
-            Methods.CreateIBaseService(templatePath, savePath, IServiceNamespace + ".Base");
+            var moduleParameter = new ModuleParameter
+            {
+                FileName = "IBaseService",
+                Parameter = param,
+                SavePath = Methods.GetSlnPath + "\\" + IServiceProjectName + "\\Base",
+                TempName = "TempIBaseService"
+            };
+            Methods.CreateModules(moduleParameter);
             AddTask(IServiceProjectName);
             Print("IBaseService创建成功");
         }
@@ -164,11 +188,16 @@ namespace SugarCodeGeneration
         private static void GenerationRepository()
         {
             Print("开始创建Repository");
-            string savePath = Methods.GetSlnPath + "\\" + RepositoryProjectName;//保存目录
-            List<string> tables = db.DbMaintenance.GetTableInfoList().Select(it => it.Name).ToList();
-            string templatePath = Methods.GetCurrentProjectPath + "\\Template\\TempRepository.txt";//模版地址
+            var moduleParameter = new ModuleParameter
+            {
+                FileSuffix = "Repository",
+                Parameter = param,
+                SavePath = Methods.GetSlnPath + "\\" + RepositoryProjectName,
+                Tables = db.DbMaintenance.GetTableInfoList().Select(it => it.Name).ToList(),
+                TempName = "TempRepository"
+            };
+            Methods.CreateModules(moduleParameter);
 
-            Methods.CreateRepository(templatePath, savePath, tables, RepositoryNamespace, ModelNamespace, IRepositoryNamespace, RepositoryNamespace + ".Base");
             AddTask(RepositoryProjectName);
             Print("Repository创建成功");
         }
@@ -179,10 +208,15 @@ namespace SugarCodeGeneration
         private static void GenerationBaseRepository()
         {
             Print("开始创建BaseRepository");
-            string templatePath = Methods.GetCurrentProjectPath + "\\Template\\TempBaseRepository.txt";//模版地址
-            string savePath = Methods.GetSlnPath + "\\" + SolutionName + ".Repository" + "\\Base\\BaseRepository.cs";//具体文件名
+            var moduleParameter = new ModuleParameter
+            {
+                FileName = "BaseRepository",
+                Parameter = param,
+                SavePath = Methods.GetSlnPath + "\\" + RepositoryProjectName + "\\Base",
+                TempName = "TempBaseRepository"
+            };
+            Methods.CreateModules(moduleParameter);
 
-            Methods.CreateBaseRepository(templatePath, savePath, RepositoryNamespace + ".Base", ModelNamespace, IRepositoryNamespace);
             AddTask(RepositoryProjectName);
             Print("BaseRepository创建成功");
         }
@@ -193,16 +227,17 @@ namespace SugarCodeGeneration
         private static void GenerationDContext()
         {
             Print("开始创建DbContext");
-            string templatePath = Methods.GetCurrentProjectPath + "\\Template\\DbContext.txt";//模版地址
-            string savePath = Methods.GetSlnPath + "\\" + RepositoryProjectName + "\\Db\\DbContext.cs";//具体文件名
-            //下面代码不动
-            DbContextParameter model = new DbContextParameter
+            param.DbType = dbType;
+            param.ConnectionString = connectionString;
+
+            var moduleParameter = new ModuleParameter
             {
-                ConnectionString = connectionString,
-                DbType = dbType,
-                Namespace = RepositoryNamespace + ".Db"
+                FileName = "DbContext",
+                Parameter = param,
+                SavePath = Methods.GetSlnPath + "\\" + RepositoryProjectName + "\\Db",
+                TempName = "DbContext"
             };
-            Methods.CreateDbContext(templatePath, savePath, model);
+            Methods.CreateModules(moduleParameter);
             AddTask(RepositoryProjectName);
             Print("DbContext创建成功");
         }
@@ -213,11 +248,17 @@ namespace SugarCodeGeneration
         private static void GenerationIRepository()
         {
             Print("开始创建IRepository");
-            string savePath = Methods.GetSlnPath + "\\" + IRepositoryProjectName;//保存目录
-            List<string> tables = db.DbMaintenance.GetTableInfoList().Select(it => it.Name).ToList();
-            string templatePath = Methods.GetCurrentProjectPath + "\\Template\\TempIRepository.txt";//模版地址
+            var moduleParameter = new ModuleParameter
+            {
+                FilePrefix = "I",
+                FileSuffix = "Repository",
+                Parameter = param,
+                SavePath = Methods.GetSlnPath + "\\" + IRepositoryProjectName,
+                Tables = db.DbMaintenance.GetTableInfoList().Select(it => it.Name).ToList(),
+                TempName = "TempIRepository"
+            };
+            Methods.CreateModules(moduleParameter);
 
-            Methods.CreateIRepository(templatePath, savePath, tables, IRepositoryNamespace, ModelNamespace, IRepositoryNamespace + ".Base");
             AddTask(IRepositoryProjectName);
             Print("IRepository创建成功");
         }
@@ -228,10 +269,15 @@ namespace SugarCodeGeneration
         private static void GenerationIBaseRepository()
         {
             Print("开始创建IBaseRepository");
-            string templatePath = Methods.GetCurrentProjectPath + "\\Template\\TempIBaseRepository.txt";//模版地址
-            string savePath = Methods.GetSlnPath + "\\" + SolutionName + ".IRepository" + "\\Base\\IBaseRepository.cs";//具体文件名
+            var moduleParameter = new ModuleParameter
+            {
+                FileName = "IBaseRepository",
+                Parameter = param,
+                SavePath = Methods.GetSlnPath + "\\" + IRepositoryProjectName + "\\Base",
+                TempName = "TempIBaseRepository"
+            };
+            Methods.CreateModules(moduleParameter);
 
-            Methods.CreateIBaseRepository(templatePath, savePath, IRepositoryNamespace + ".Base");
             AddTask(IRepositoryProjectName);
             Print("IBaseRepository创建成功");
         }

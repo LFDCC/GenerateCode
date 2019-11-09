@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SugarCodeGeneration.Codes
+namespace Generation.Codes
 {
     internal class FileHelper
     {

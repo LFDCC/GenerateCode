@@ -1,5 +1,5 @@
 ﻿using @Model.ModelNamespace;
-using @Model.IRepositoryNamespace;
+using @Model.IBaseRepositoryNamespace;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace @Model.Namespace
+namespace @Model.BaseRepositoryNamespace
 {
     public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class, new()
     {

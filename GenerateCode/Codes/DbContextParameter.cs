@@ -1,6 +1,6 @@
 ﻿using SqlSugar;
 
-namespace SugarCodeGeneration
+namespace Generation
 {
     public class DbContextParameter
     {

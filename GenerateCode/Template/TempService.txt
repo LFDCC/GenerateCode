@@ -1,6 +1,6 @@
 ﻿using @Model.ModelNamespace;
 using @Model.IRepositoryNamespace;
-using @Model.ServiceNamespace;
+using @Model.BaseServiceNamespace;
 using @Model.IServiceNamespace;
 using SqlSugar;
 using System;
@@ -9,14 +9,14 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace @Model.Namespace
+namespace @Model.ServiceNamespace
 {
-    public class @(Model.Name)Service : BaseService<@Model.Name>,I@(Model.Name)Service
+    public class @(Model.TableName)Service : BaseService<@Model.TableName>,I@(Model.TableName)Service
     {
-        private I@(Model.Name)Repository _@(Model.Name)Repository;
+        private I@(Model.TableName)Repository _@(Model.TableName)Repository;
 
-		public @(Model.Name)Service(I@(Model.Name)Repository @(Model.Name)Repository):base(@(Model.Name)Repository){
-			_@(Model.Name)Repository=@(Model.Name)Repository;
+		public @(Model.TableName)Service(I@(Model.TableName)Repository @(Model.TableName)Repository):base(@(Model.TableName)Repository){
+			_@(Model.TableName)Repository=@(Model.TableName)Repository;
 		}
     }
 

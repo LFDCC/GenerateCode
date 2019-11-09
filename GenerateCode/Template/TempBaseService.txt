@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using @Model.IServiceNamespace;
-using @Model.IRepositoryNamespace;
+using @Model.IBaseServiceNamespace;
+using @Model.IBaseRepositoryNamespace;
 
-namespace @Model.Namespace
+namespace @Model.BaseServiceNamespace
 {
     public class BaseService<TEntity> : IBaseService<TEntity> where TEntity : class, new()
     {
