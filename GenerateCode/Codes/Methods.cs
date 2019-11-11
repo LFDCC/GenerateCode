@@ -22,10 +22,16 @@ namespace Generation.Codes
             get
             {
                 string path = Directory.GetParent(GetCurrentProjectPath).FullName;
+                string path1 = Directory.GetCurrentDirectory();
                 return @"C:\Testing";
             }
         }
 
+        /// <summary>
+        /// 添加引用
+        /// </summary>
+        /// <param name="projectName"></param>
+        /// <param name="refProjectName"></param>
         public static void AddRef(string projectName, string refProjectName)
         {
             string xmlPath = GetSlnPath + @"\" + projectName + @"\" + projectName + ".csproj";
@@ -53,19 +59,6 @@ namespace Generation.Codes
             xe.Save(xmlPath);
         }
 
-        public static void AddCsproj(string projectName)
-        {
-            CreateProject(projectName);
-            string xmlPath = GetSlnPath + @"\" + projectName + @"\" + projectName + ".csproj";
-
-            string xml = File.ReadAllText(xmlPath, System.Text.Encoding.UTF8);
-            string firstLine = System.IO.File.ReadLines(xmlPath, System.Text.Encoding.UTF8).First();
-            string newXml = xml.Replace(firstLine, "").TrimStart('\r').TrimStart('\n');
-            XDocument xe = XDocument.Load(xmlPath);
-            newXml = xe.ToString().Replace("xmlns=\"\"", "");
-            xe = XDocument.Parse(newXml);
-            xe.Save(xmlPath);
-        }
         /// <summary>
         /// 创建模块
         /// </summary>
@@ -95,164 +88,24 @@ namespace Generation.Codes
                     FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
                 }
             }
-
         }
 
         /// <summary>
-        /// 生成IBaseService
+        /// 创建项目
         /// </summary>
-        /// <param name="templatePath"></param>
-        /// <param name="savePath"></param>
-        /// <param name="nameSpace"></param>
-        public static void CreateIBaseService(string templatePath, string savePath, TempParameter parameter)
+        /// <param name="projectName"></param>
+        public static void AddCsproj(string projectName)
         {
-            string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
-            string templateKey = "ibs"; //取个名字
-            string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
-            if (FileHelper.IsExistFile(savePath) == false)
-            {
-                FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
-            }
-        }
+            CreateProject(projectName);
+            string xmlPath = GetSlnPath + @"\" + projectName + @"\" + projectName + ".csproj";
 
-        /// <summary>
-        /// 生成IService
-        /// </summary>
-        /// <param name="templatePath"></param>
-        /// <param name="savePath"></param>
-        /// <param name="tables"></param>
-        /// <param name="nameSpace"></param>
-        /// <param name="modelNamespace"></param>
-        /// <param name="iBaseRepositoryNamespace"></param>
-        public static void CreateIService(string templatePath, string savePath, List<string> tables, TempParameter parameter)
-        {
-            string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
-            string templateKey = "is"; //取个名字
-            foreach (string item in tables)
-            {
-                parameter.TableName = item;
-                string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
-                string cp = savePath + "\\I" + item + "Service.cs";
-                if (FileHelper.IsExistFile(cp) == false)
-                {
-                    FileHelper.CreateFile(cp, result, System.Text.Encoding.UTF8);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 生成dbcontext
-        /// </summary>
-        /// <param name="templatePath"></param>
-        /// <param name="savePath"></param>
-        /// <param name="model"></param>
-        public static void CreateDbContext(string templatePath, string savePath, TempParameter parameter)
-        {
-            string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
-            string templateKey = "dbcontext"; //取个名字
-            string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
-            if (FileHelper.IsExistFile(savePath) == false)
-            {
-                FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
-            }
-        }
-
-        public static void CreateBaseService(string templatePath, string savePath, TempParameter parameter)
-        {
-            string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
-            string templateKey = "bs"; //取个名字           
-            string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
-
-            if (FileHelper.IsExistFile(savePath) == false)
-            {
-                FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
-            }
-        }
-
-        public static void CreateService(string templatePath, string savePath, List<string> tables, TempParameter parameter)
-        {
-            string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
-            string templateKey = "sss"; //取个名字
-            foreach (string item in tables)
-            {
-                parameter.TableName = item;
-                string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
-                string cp = savePath + "\\" + item + "Service.cs";
-                if (FileHelper.IsExistFile(cp) == false)
-                {
-                    FileHelper.CreateFile(cp, result, System.Text.Encoding.UTF8);
-                }
-            }
-        }
-
-        public static void CreateRepository(string templatePath, string savePath, List<string> tables, TempParameter parameter)
-        {
-            string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
-            string templateKey = "cr"; //取个名字
-            foreach (string item in tables)
-            {
-                parameter.TableName = item;
-                string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
-                string cp = savePath + "\\" + item + "Repository.cs";
-                if (FileHelper.IsExistFile(cp) == false)
-                {
-                    FileHelper.CreateFile(cp, result, System.Text.Encoding.UTF8);
-                }
-            }
-        }
-
-        public static void CreateBaseRepository(string templatePath, string savePath, TempParameter parameter)
-        {
-            string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
-            string templateKey = "br"; //取个名字
-            string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
-
-            if (FileHelper.IsExistFile(savePath) == false)
-            {
-                FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
-            }
-        }
-
-        /// <summary>
-        /// 生成IBaseRepository
-        /// </summary>
-        /// <param name="templatePath"></param>
-        /// <param name="savePath"></param>
-        /// <param name="nameSpace"></param>
-        public static void CreateIBaseRepository(string templatePath, string savePath, TempParameter parameter)
-        {
-            string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
-            string templateKey = "ibr"; //取个名字
-            string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
-            if (FileHelper.IsExistFile(savePath) == false)
-            {
-                FileHelper.CreateFile(savePath, result, System.Text.Encoding.UTF8);
-            }
-        }
-
-        /// <summary>
-        /// 创建仓储接口
-        /// </summary>
-        /// <param name="templatePath"></param>
-        /// <param name="savePath"></param>
-        /// <param name="tables"></param>
-        /// <param name="nameSpace"></param>
-        /// <param name="modelNamespace"></param>
-        /// <param name="iBaseRepositoryNamespace"></param>
-        public static void CreateIRepository(string templatePath, string savePath, List<string> tables, TempParameter parameter)
-        {
-            string template = System.IO.File.ReadAllText(templatePath); //从文件中读出模板内容
-            string templateKey = "ir"; //取个名字
-            foreach (string item in tables)
-            {
-                parameter.TableName = item;
-                string result = Engine.Razor.RunCompile(template, templateKey, parameter.GetType(), parameter);
-                string cp = savePath + "\\I" + item + "Repository.cs";
-                if (FileHelper.IsExistFile(cp) == false)
-                {
-                    FileHelper.CreateFile(cp, result, System.Text.Encoding.UTF8);
-                }
-            }
+            string xml = File.ReadAllText(xmlPath, System.Text.Encoding.UTF8);
+            string firstLine = System.IO.File.ReadLines(xmlPath, System.Text.Encoding.UTF8).First();
+            string newXml = xml.Replace(firstLine, "").TrimStart('\r').TrimStart('\n');
+            XDocument xe = XDocument.Load(xmlPath);
+            newXml = xe.ToString().Replace("xmlns=\"\"", "");
+            xe = XDocument.Parse(newXml);
+            xe.Save(xmlPath);
         }
 
         /// <summary>
@@ -278,8 +131,6 @@ namespace Generation.Codes
                     FileHelper.CreateDirectory(binDic);
                 }
                 FileHelper.CreateFile(projectPath, project, System.Text.Encoding.UTF8);
-                //FileHelper.CreateFile(projectDic + "\\class1.cs", "", System.Text.Encoding.UTF8);
-                //File.Copy(GetCurrentProjectPath + "/Template/nuget.txt", projectDic + "packages.config");
                 ProjectIds.Add(name, projectId);
                 AppendProjectToSln(projectId, name);
             }
@@ -296,6 +147,7 @@ namespace Generation.Codes
             if (slns.Any())
             {
                 string sln = slns.First();
+
                 string templatePath = GetCurrentProjectPath + "/Template/sln.txt";
                 string appendText = System.IO.File.ReadAllText(templatePath)
                     .Replace("@pid", projectId)

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SqlSugar;
 using Generation.Codes;
+using SqlSugar;
 
 namespace Generation
 {
@@ -19,8 +19,9 @@ namespace Generation
         /// <summary>
         /// 连接字符串
         /// </summary>
-        //private const string connectionString = @"server=.\sqlexpress;uid=sa;pwd=ok;database=nj";       //sqlserver
+        //private const string connectionString = @"server=.\sqlexpress;uid=sa;pwd=ok;database=nj";//sqlserver
         private const string connectionString = @"Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=testdb)));User ID=scott;Password=ok";//oracle
+
         /// <summary>
         ///解决方案名称
         /// </summary>
@@ -39,7 +40,7 @@ namespace Generation
 
         private static SqlSugarClient db;
 
-        static TempParameter param = new TempParameter
+        private static TempParameter param = new TempParameter
         {
             IRepositoryNamespace = IRepositoryNamespace,
             IServiceNamespace = IServiceNamespace,
@@ -47,13 +48,13 @@ namespace Generation
             RepositoryNamespace = RepositoryNamespace,
             ServiceNamespace = ServiceNamespace
         };
+
         /// <summary>
         /// 执行生成
         /// </summary>
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
-
             /***创建解决方案***/
             Methods.CreateSln(SolutionName);
 
@@ -112,7 +113,7 @@ namespace Generation
         private static void GenerationService()
         {
             Print("开始创建Service");
-            var moduleParameter = new ModuleParameter
+            ModuleParameter moduleParameter = new ModuleParameter
             {
                 FileSuffix = "Service",
                 Parameter = param,
@@ -131,7 +132,7 @@ namespace Generation
         private static void GenerationBaseService()
         {
             Print("开始创建BaseService");
-            var moduleParameter = new ModuleParameter
+            ModuleParameter moduleParameter = new ModuleParameter
             {
                 FileName = "BaseService",
                 Parameter = param,
@@ -150,7 +151,7 @@ namespace Generation
         private static void GenerationIService()
         {
             Print("开始创建IService");
-            var moduleParameter = new ModuleParameter
+            ModuleParameter moduleParameter = new ModuleParameter
             {
                 FilePrefix = "I",
                 FileSuffix = "Service",
@@ -170,7 +171,7 @@ namespace Generation
         private static void GenerationIBaseService()
         {
             Print("开始创建IBaseService");
-            var moduleParameter = new ModuleParameter
+            ModuleParameter moduleParameter = new ModuleParameter
             {
                 FileName = "IBaseService",
                 Parameter = param,
@@ -188,7 +189,7 @@ namespace Generation
         private static void GenerationRepository()
         {
             Print("开始创建Repository");
-            var moduleParameter = new ModuleParameter
+            ModuleParameter moduleParameter = new ModuleParameter
             {
                 FileSuffix = "Repository",
                 Parameter = param,
@@ -208,7 +209,7 @@ namespace Generation
         private static void GenerationBaseRepository()
         {
             Print("开始创建BaseRepository");
-            var moduleParameter = new ModuleParameter
+            ModuleParameter moduleParameter = new ModuleParameter
             {
                 FileName = "BaseRepository",
                 Parameter = param,
@@ -230,7 +231,7 @@ namespace Generation
             param.DbType = dbType;
             param.ConnectionString = connectionString;
 
-            var moduleParameter = new ModuleParameter
+            ModuleParameter moduleParameter = new ModuleParameter
             {
                 FileName = "DbContext",
                 Parameter = param,
@@ -248,7 +249,7 @@ namespace Generation
         private static void GenerationIRepository()
         {
             Print("开始创建IRepository");
-            var moduleParameter = new ModuleParameter
+            ModuleParameter moduleParameter = new ModuleParameter
             {
                 FilePrefix = "I",
                 FileSuffix = "Repository",
@@ -269,7 +270,7 @@ namespace Generation
         private static void GenerationIBaseRepository()
         {
             Print("开始创建IBaseRepository");
-            var moduleParameter = new ModuleParameter
+            ModuleParameter moduleParameter = new ModuleParameter
             {
                 FileName = "IBaseRepository",
                 Parameter = param,
